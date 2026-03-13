@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: buddhaking-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: buddhaking
+      MYSQL_DATABASE: buddhaking_manager
+      MYSQL_USER: buddha
+      MYSQL_PASSWORD: songlong
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/buddhaking.sql:/docker-entrypoint-initdb.d/buddhaking.sql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -pbuddhaking"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: ./app
+    container_name: buddhaking-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/buddhaking_manager?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh
+      SPRING_DATASOURCE_USERNAME: buddha
+      SPRING_DATASOURCE_PASSWORD: songlong
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+volumes:
+  mysql_data:
+
+networks:
+  backend:
