@@ -22,5 +22,5 @@ EXPOSE 8080
 # ============================
 # 5. Lệnh chạy ứng dụng khi container start
 # ============================
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java","-Xms128m","-Xmx256m","-jar","app.jar"]
 
